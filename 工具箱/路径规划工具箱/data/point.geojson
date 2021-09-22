@@ -1,0 +1,15 @@
+{
+"type": "FeatureCollection",
+"name": "point",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "分类": "区级", "id": 1, "x": 113.7830824222, "y": 22.697750691900001 }, "geometry": { "type": "Point", "coordinates": [ 113.783082422162821, 22.697750691905821 ] } },
+{ "type": "Feature", "properties": { "分类": "区级", "id": 2, "x": 113.91073664069999, "y": 22.7280901669 }, "geometry": { "type": "Point", "coordinates": [ 113.910736640670038, 22.728090166869841 ] } },
+{ "type": "Feature", "properties": { "分类": "区级", "id": 3, "x": 114.0511828043, "y": 22.6623788313 }, "geometry": { "type": "Point", "coordinates": [ 114.051182804263021, 22.662378831282787 ] } },
+{ "type": "Feature", "properties": { "分类": "市级", "id": 4, "x": 113.94280380639999, "y": 22.537296417299999 }, "geometry": { "type": "Point", "coordinates": [ 113.942803806427008, 22.537296417268603 ] } },
+{ "type": "Feature", "properties": { "分类": "市级", "id": 5, "x": 114.1123363186, "y": 22.544528497000002 }, "geometry": { "type": "Point", "coordinates": [ 114.112336318639109, 22.54452849703155 ] } },
+{ "type": "Feature", "properties": { "分类": "市级", "id": 6, "x": 114.0574945935, "y": 22.5401106622 }, "geometry": { "type": "Point", "coordinates": [ 114.057494593453868, 22.540110662150273 ] } },
+{ "type": "Feature", "properties": { "分类": "区级", "id": 7, "x": 114.1192151084, "y": 22.652293137200001 }, "geometry": { "type": "Point", "coordinates": [ 114.119215108426246, 22.65229313716415 ] } },
+{ "type": "Feature", "properties": { "分类": "区级", "id": 8, "x": 114.24468174499999, "y": 22.721052590599999 }, "geometry": { "type": "Point", "coordinates": [ 114.244681745046492, 22.721052590610249 ] } }
+]
+}

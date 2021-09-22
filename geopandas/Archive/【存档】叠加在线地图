@@ -1,0 +1,179 @@
+# To add a new cell, type '# %%'
+# To add a new markdown cell, type '# %% [markdown]'
+# %% [markdown]
+# # 在geopandas中叠加在线地图
+# 学习地址：https://www.cnblogs.com/feffery/p/13763601.html <br />
+# https://blog.csdn.net/fengdu78/article/details/104624007/
+# %% [markdown]
+# ## 1 库与数据导入，以及异常排查
+
+# %%
+import geopandas as gpd
+import contextily as ctx
+import matplotlib.pyplot as plt
+
+
+# %%
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei'] # 指定默认字体：解决plot不能显示中文问题
+plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+
+
+# %%
+world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+cities = gpd.read_file(gpd.datasets.get_path('naturalearth_cities'))
+
+
+# %%
+world = world[(world.pop_est>0) & (world.name!="Antarctica")]
+
+
+# %%
+world.representative_point().plot() #面文件转换为范围内一个典型点
+
+# %% [markdown]
+# ## 2 底图相关链接
+# ### 2.1 常用底图链接
+# 
+# * 交通
+# https://a.tile.thunderforest.com/mobile-atlas/{z}/{x}/{y}.png?apikey=41f4f936f1d148f69cbd100812875c88
+# https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png
+# 
+# * 地形
+# http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.jpg
+# 
+# * 浅色图无标注：
+# https://d.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png
+# 
+# ### 2.2 查看contextily支持的内部链接
+# 
+
+# %%
+ctx.providers.keys()
+
+
+# %%
+ctx.providers["Thunderforest"]
+
+# %% [markdown]
+# ## 3 案例（均以日本为例）
+# ### 3.1 影像地图
+
+# %%
+point = gpd.read_file("/Users/creative/Documents/python/geopandas/data/Taiwan_shp/gadm36_TWN_1.shp")
+Taiwan = gpd.read_file("/Users/creative/Documents/python/geopandas/data/Taiwan_shp/gadm36_TWN_0.shp")
+city = gpd.read_file("/Users/creative/Documents/python/geopandas/data/Taiwan_shp/gadm36_TWN_2.shp")
+
+
+# %%
+fig = plt.figure(figsize=(15,12),dpi=300)
+ax = fig.add_subplot(1,1,1)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='white',linewidth=1.5)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='white',linewidth=0.8)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='white', weight='bold')
+ctx.add_basemap(ax, url=ctx.providers.NASAGIBS.ViirsEarthAtNight2012, zoom=8)
+plt.title("台湾城市分布与灯光地图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+
+# %%
+fig = plt.figure(figsize=(15,12),dpi=300)
+ax = fig.add_subplot(1,1,1)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='white',linewidth=1)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='white',linewidth=0.5)
+#city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='white',linewidth=0.3)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='white')
+ctx.add_basemap(ax, url=ctx.providers.Esri.WorldImagery, zoom=8)
+plt.title("台湾城市分布与影像地图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+
+# %%
+fig = plt.figure(figsize=(15,12),dpi=300)
+ax = fig.add_subplot(1,1,1)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='white',linewidth=1)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='white',linewidth=0.5)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='white')
+ctx.add_basemap(ax, url=ctx.providers.Stamen.TerrainBackground, zoom=8)
+plt.title("台湾地形图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+
+# %%
+fig = plt.figure(figsize=(15,12),dpi=300)
+ax = fig.add_subplot(1,1,1)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='k',linewidth=1)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='k',linewidth=0.5)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='k')
+ctx.add_basemap(ax, source='https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=df181a86431c40db890b4611c018a7b3',zoom=8)
+plt.title("台湾地形图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+
+# %%
+fig = plt.figure(figsize=(30,15),dpi=300)
+
+#卫星图
+ax = fig.add_subplot(1,4,1)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='white',linewidth=1)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='white',linewidth=0.5)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='white')
+ctx.add_basemap(ax, url=ctx.providers.Esri.WorldImagery, zoom=8)
+plt.title("台湾影像地图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+#地形图
+ax = fig.add_subplot(1,4,2)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='white',linewidth=1)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='white',linewidth=0.5)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='white')
+ctx.add_basemap(ax, url=ctx.providers.Stamen.TerrainBackground, zoom=8)
+plt.title("台湾地形图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+#灯光图
+ax = fig.add_subplot(1,4,3)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='white',linewidth=1.5)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='white',linewidth=0.8)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='white', weight='bold')
+ctx.add_basemap(ax, url=ctx.providers.NASAGIBS.ViirsEarthAtNight2012, zoom=8)
+plt.title("台湾灯光地图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+#交通图
+ax = fig.add_subplot(1,4,4)
+Taiwan.boundary.to_crs("EPSG:3857").plot(ax=ax, edgecolor='k',linewidth=1)
+city.boundary.to_crs("EPSG:3857").plot(ax=ax,edgecolor='k',linewidth=0.5)
+for idx, _ in enumerate(city.geometry.representative_point().to_crs(3857)):
+    region = city.loc[idx, 'NL_NAME_2']
+    ax.text(_.x, _.y, region, ha="center", va="center", size=6,color='k')
+ctx.add_basemap(ax, source='https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=df181a86431c40db890b4611c018a7b3',zoom=8)
+plt.title("台湾地形图",fontsize=12)
+plt.xlabel("lng（Pseudo-Mercator）",fontsize=12)
+plt.ylabel("lat（Pseudo-Mercator）",fontsize=12)
+
+
+# %%
+
+
+

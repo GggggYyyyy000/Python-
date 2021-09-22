@@ -1,0 +1,35 @@
+from collections import Counter
+import pandas as pd
+import jieba
+import warnings
+import re
+import pprint
+
+def Participle(Text):
+    warnings.filterwarnings("ignore")
+    seg_list = jieba.cut(Text,cut_all = False)
+    mydata = list(seg_list)
+    """删除掉标点符号，仅保留中文字符"""
+    new_data = []
+    p = re.compile(r'[\u4e00-\u9fa5]')
+    for i in range(len(mydata)):
+        data = re.findall(p, mydata[i])
+        result = ''.join(data)
+        new_data.append(result)
+    box = []
+    for i in range(len(new_data)):
+        if new_data[i] != '':
+            box.append(new_data[i])
+    return box
+
+if __name__ == "__main__":
+    Text_dataset = pd.read_excel("Embarrassing_corpus.xlsx",sheet_name=0,header=0)
+    row_num=Text_dataset.shape[0]
+    data = []
+    for i in range(row_num):
+        Text=str(Text_dataset.iloc[i,0])
+        result = Counter(Participle(Text))
+        for a in result:
+            data.append(a)
+    test = Counter(data)
+    pprint.pprint(test)
